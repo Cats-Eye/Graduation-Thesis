@@ -79,10 +79,23 @@ uimat = np.zeros((7,6))
 for user in prefs:
     for movieid in prefs[user]:
         uimat[int(user)-1,int(movieid)-1]=float(prefs[user][movieid])
-print(uimat)
+#print(uimat)
+#print(uimat[0,:])
 
-uimat_sparse = csr_matrix(uimat)
-print(uimat_sparse)
+# #ユークリッド距離
+# print(np.linalg.norm(uimat[0,:]-uimat[1,:]))
+# print(np.sqrt(np.power(uimat[0,:]-uimat[1,:], 2).sum()))
 
-uimat_dense = uimat_sparse.todense()
-print(uimat_dense)
+# # コサイン類似度
+# print(sp.spatial.distance.cosine(uimat[0,:],uimat[1,:]))
+
+# ピアソン相関係数で相関係数rと有意確率p
+r,p = sp.stats.pearsonr(uimat[0,:],uimat[1,:])
+print(r)
+
+# # スパース行列と戻す操作
+# uimat_sparse = csr_matrix(uimat)
+# print(uimat_sparse)
+#
+# uimat_dense = uimat_sparse.todense()
+# print(uimat_dense)

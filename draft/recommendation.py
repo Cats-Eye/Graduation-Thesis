@@ -247,11 +247,11 @@ def loadMovieLens():
 
 
 #print(sim_distance(critics,'Lisa Rose','Gene Seymour'))
-#print(sim_pearson(critics,'Lisa Rose','Gene Seymour'))
+print(sim_pearson(critics,'Lisa Rose','Gene Seymour'))
 #print(topMatches(critics,'Toby',n=3))
 #print(topMatches(critics,'Toby',n=3,similarity=sim_distance))
 #print(getRecommendations(critics,'Toby'))
 #print(transformPrefs(critics))
 #print(calculateSimilarItems(critics, n=3))
-print(loadMovieLens())
+#print(loadMovieLens())
 #print(getRecommendedItems(prefs,calculateSimilarItems(prefs,n=3),'580'))
