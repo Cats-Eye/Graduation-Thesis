@@ -37,18 +37,55 @@ for user in prefs:
     for movieid in prefs[user]:
         uimat[int(user)-1,int(movieid)-1]=int(prefs[user][movieid])
 
+# 製品と人物を逆にした転置行列
+t_uimat = uimat.T
 
+# スパース行列と戻す操作
+uimat_sparse = csr_matrix(uimat)
+# uimat_dense = uimat_sparse.todense()
 
 # 類似度計算
 # ユークリッド距離
-print(np.linalg.norm(uimat[0,:]-uimat[1,:]))
+def sim_euclid(person1,person2):
+    # ０で除算してエラーが出ないように１を分母に足した上で逆数をとっている
+    # 類似している人ほど距離が小さいので逆数をとって類似しているほど1に近い数字を返す
+    dis = sp.spatial.distance.euclidean(person1,person2)
+    # np.linalg.norm(person1,person2)でも可
+    return 1/(1+dis)
 
-# ピアソン相関係数で相関係数rと有意確率p
-r,p = sp.stats.pearsonr(uimat[0,:],uimat[1,:])
-print(r)
+# ピアソン相関係数
+def sim_pearson(person1,person2):
+    # ピアソン相関係数で相関係数rと有意確率p
+    r,p = sp.stats.pearsonr(person1,person2)
+    return r
 
-# コサイン類似度
-print(sp.spatial.distance.cosine(uimat[0,:],uimat[1,:]))
+# cos類似度
+def sim_cos(person1,person2):
+    # 1-cos類似度
+    # cos類似度
+    return -sp.spatial.distance.cosine(person1,person2)+1
+
+# jaccard係数
+def sim_jaccard(person1,person2):
+    return sp.spatial.distance.jaccard(person1,person2)
+
+
+
+def topMatches(prefs, uimat, person, n=3, similarity=sim_pearson):
+    #リストの定義には[]を使う
+	scores=[(similarity(person, uimat[other-1,:]),other)
+			for other in prefs]
+	# 高スコアがリストの最初に来るように並び替える
+    # リストにのみ定義されている昇順に並べ替えるsortと逆順に並べ替えるreverse
+	scores.sort()
+	scores.reverse()
+	return scores[0:n]
+
+
+tester=uimat[1,:]
+
+print(topMatches(prefs, uimat, person=tester , n=4, similarity=sim_pearson))
+
 
 
 
