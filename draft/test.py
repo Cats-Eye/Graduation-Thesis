@@ -195,5 +195,9 @@ def topMatches(prefs, uimat, person, n=3, similarity=sim_pearson):
 
 tester=[0, 4.5, 0, 4.0, 1.0, 0]
 
-print(topMatches(prefs, uimat, tester, n=4, similarity=sim_pearson))
-print(topMatches2(prefs, 6, n=4, similarity=sim_pearson2))
+# print(topMatches(prefs, uimat, tester, n=4, similarity=sim_pearson))
+# print(topMatches2(prefs, 6, n=4, similarity=sim_pearson2))
+
+mydict = {"a": "amembo", "i": "inu", "u": "usagi"}
+mydict_inv = {v:k for k, v in mydict.items()}
+print (mydict_inv)

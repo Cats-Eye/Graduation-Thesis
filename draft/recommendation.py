@@ -57,7 +57,6 @@ critics = {
 }
 
 
-
 # ユークリッド距離
 # person1とperson2の距離をもとにした類似性スコアを返す
 def sim_distance(prefs,person1,person2):
