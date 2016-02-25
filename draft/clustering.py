@@ -76,7 +76,7 @@ def sim_jaccard(x,y,uimat):
 #特定ユーザpersonの類似ユーザotherのなかで上位n人のリスト
 def topMatches(prefs, uimat, person, n, similarity):
     scores=[]
-    scores=[(similarity(person, int(other),uimat),other)
+    scores=[(similarity(int(person), int(other),uimat),other)
 			for other in prefs]
     # 高スコアがリストの最初に来るように並び替える
     # リストにのみ定義されている昇順に並べ替えるsortと逆順に並べ替えるreverse
@@ -117,18 +117,59 @@ movies=loadMovieLens_movies(path="./data/u.item")
 # UCFRecommendation=getRecommendations(prefs, topMatchSU, 30)
 # print(UCFRecommendation)
 
-# 各ユーザについて8:2の交差検定
-tr1prefs,max_tr1user,max_tr1movieid=loadMovieLens_prefs(path="./data/100kcross/u1.base")
-tr1uimat=loadMovieLens_uimat(tr1prefs,max_tr1user,max_tr1movieid)
-
-topMatchSU=dict(topMatches(tr1prefs, tr1uimat, 30 , 50, sim_pearson))
-UCFRecommendation=getRecommendations(tr1prefs, topMatchSU, 30)
-print(UCFRecommendation)
-
-
+prefs,max_user,max_movieid=loadMovieLens_prefs(path="./data/100kcross/u1.base")
+uimat=loadMovieLens_uimat(prefs,max_user,max_movieid)
 te1prefs,max_te1user,max_te1movieid=loadMovieLens_prefs(path="./data/100kcross/u1.test")
-te1uimat=loadMovieLens_uimat(te1prefs,max_te1user,max_te1movieid)
-# 943と462
+
+
+print(te1prefs)
+
+user=630
+totals=0
+itemSums=0
+# 変化させるのは近傍
+topMatchSU=dict(topMatches(prefs, uimat, user, 5, sim_pearson))
+rankings=getRecommendations(prefs, topMatchSU, user)
+for (sim,movieid) in rankings:
+    if movieid in te1prefs[str(user)]:
+        s=abs(float(te1prefs[str(user)][movieid])-sim)
+        totals+=s
+        itemSums+=1
+MAE=totals/itemSums
+print(MAE)
+
+
+# totals=0
+# itemSums=0
+# for user in prefs:
+#     # 変化させるのは近傍
+#     topMatchSU=dict(topMatches(prefs, uimat, user, 5, sim_pearson))
+#     rankings=getRecommendations(prefs, topMatchSU, user)
+#     for (sim,movieid) in rankings:
+#         if movieid in te1prefs[str(user)]:
+#             s=abs(float(te1prefs[str(user)][movieid])-sim)
+#             totals+=s
+#             itemSums+=1
+# MAE=totals/itemSums
+# print(MAE)
+
+
+# print(rankings)
+# リストの要素取り出し！
+# ranking_inv = {v:k for (k,v) in rankings}
+# print(ranking_inv)
+
+# # 各ユーザについて8:2の交差検定
+# tr1prefs,max_tr1user,max_tr1movieid=loadMovieLens_prefs(path="./data/100kcross/u1.base")
+# tr1uimat=loadMovieLens_uimat(tr1prefs,max_tr1user,max_tr1movieid)
+#
+# topMatchSU=dict(topMatches(tr1prefs, tr1uimat, 30, 20, sim_pearson))
+# UCFRecommendation=dict(getRecommendations(tr1prefs, topMatchSU, 30))
+# print(UCFRecommendation)
+#
+# te1prefs,max_te1user,max_te1movieid=loadMovieLens_prefs(path="./data/100kcross/u1.test")
+# te1uimat=loadMovieLens_uimat(te1prefs,max_te1user,max_te1movieid)
+# # 943と462
 
 
 # #これはまわった
