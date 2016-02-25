@@ -30,7 +30,9 @@ def loadMovieLens_prefs(path):
         if int(movieid) > int(max_movieid):
             max_movieid = int(movieid)
         # 1682個の映画と943人のユーザと少なくとも20の映画評価
+    return [prefs,max_user,max_movieid]
 
+def loadMovieLens_uimat(prefs,max_user,max_movieid):
     # 配列は1ずつ数がずれているから注意
     uimat = np.zeros((int(max_user),int(max_movieid)))
     for user in prefs:
@@ -42,13 +44,13 @@ def loadMovieLens_prefs(path):
     # スパース行列と戻す操作
     uimat_sparse = csr_matrix(uimat)
     # uimat_dense = uimat_sparse.todense()
-    return [prefs,uimat,max_user,max_movieid]
+    return uimat
 
 
 
 # 類似度計算
 # ユークリッド距離
-def sim_euclid(x,y):
+def sim_euclid(x,y,uimat):
     # ０で除算してエラーが出ないように１を分母に足した上で逆数をとっている
     # 類似している人ほど距離が小さいので逆数をとって類似しているほど1に近い数字を返す
     dis = sp.spatial.distance.euclidean(uimat[x-1,:],uimat[y-1,:])
@@ -56,25 +58,25 @@ def sim_euclid(x,y):
     return 1/(1+dis)
 
 # ピアソン相関係数
-def sim_pearson(x,y):
+def sim_pearson(x,y,uimat):
     # ピアソン相関係数で相関係数rと有意確率p
     r,p = sp.stats.pearsonr(uimat[x-1,:],uimat[y-1,:])
     return r
 
 # cos類似度
-def sim_cos(x,y):
+def sim_cos(x,y,uimat):
     # 1-cos類似度
     # cos類似度
     return 1-sp.spatial.distance.cosine(uimat[x-1,:],uimat[y-1,:])
 
 # jaccard係数
-def sim_jaccard(x,y):
+def sim_jaccard(x,y,uimat):
     return sp.spatial.distance.jaccard(uimat[x-1,:],uimat[y-1,:])
 
 #特定ユーザpersonの類似ユーザotherのなかで上位n人のリスト
 def topMatches(prefs, uimat, person, n, similarity):
     scores=[]
-    scores=[(similarity(person, int(other)),other)
+    scores=[(similarity(person, int(other),uimat),other)
 			for other in prefs]
     # 高スコアがリストの最初に来るように並び替える
     # リストにのみ定義されている昇順に並べ替えるsortと逆順に並べ替えるreverse
@@ -107,20 +109,87 @@ def getRecommendations(prefs,topMatchSU,person):
 
 
 
-movies = {}
 movies=loadMovieLens_movies(path="./data/u.item")
 
-prefs = {}
-max_user = 0
-max_movieid = 0
-uimat = np.zeros((int(max_user),int(max_movieid)))
-prefs,uimat,max_user,max_movieid=loadMovieLens_prefs(path="./data/100kcross/u1.base")
+# prefs,max_user,max_movieid=loadMovieLens_prefs(path="./data/u.data")
+# uimat=loadMovieLens_uimat(prefs,max_user,max_movieid)
+# topMatchSU=dict(topMatches(prefs, uimat, 30 , 4, sim_pearson))
+# UCFRecommendation=getRecommendations(prefs, topMatchSU, 30)
+# print(UCFRecommendation)
 
-topMatchSU={}
-topMatchSU=dict(topMatches(prefs, uimat, 30 , 4, sim_pearson))
-UCFRecommendation=getRecommendations(prefs, topMatchSU, 30)
+# 各ユーザについて8:2の交差検定
+tr1prefs,max_tr1user,max_tr1movieid=loadMovieLens_prefs(path="./data/100kcross/u1.base")
+tr1uimat=loadMovieLens_uimat(tr1prefs,max_tr1user,max_tr1movieid)
+
+topMatchSU=dict(topMatches(tr1prefs, tr1uimat, 30 , 50, sim_pearson))
+UCFRecommendation=getRecommendations(tr1prefs, topMatchSU, 30)
+print(UCFRecommendation)
+
+
+te1prefs,max_te1user,max_te1movieid=loadMovieLens_prefs(path="./data/100kcross/u1.test")
+te1uimat=loadMovieLens_uimat(te1prefs,max_te1user,max_te1movieid)
+# 943と462
+
+
+# #これはまわった
+# print(prefs['1'])
+# def maketestprefs(prefs):
+#     for x in range (1):
+#         for user in prefs:
+#             prefs[user].popitem()
+#     return prefs
+# newprefs=maketestprefs(train1prefs)
+# print(newprefs['1'])
+
+# #　これもまわった
+# print(pretest1prefs['1'])
+# for x in range (10):
+#     pretest1prefs['1'].popitem()
+# print(pretest1prefs['1'])
+
+# print(prefs['1'])
+#
+# for user in prefs:
+#     for x in range (10):
+#         prefs[user].popitem()
+#
+# print(prefs['1'])
+
+
+# print(prefs['1'])
+# # print(pretest1prefs['1'])
+#
+# # def maketestprefs(prefs):
+# #     for x in range (10):
+# #         for user in prefs:
+# #             prefs[user].popitem()
+# #     return prefs
+#
+# # newprefs=maketestprefs(pretest1prefs)
+#
+# print(newprefs['1'])
+# # sinprefs=maketestprefs(pretest1prefs)
+# # maketestprefs(prefs)
+
+
+# train2prefs,train2uimat,max_train2user,max_train2movieid=loadMovieLens_prefs(path="./data/100kcross/u2.base")
+# pretest2prefs,pretest2uimat,max_pretest2user,max_pretest2movieid=loadMovieLens_prefs(path="./data/100kcross/u2.test")
+# # 943と658
+# train3prefs,train3uimat,max_train3user,max_train3movieid=loadMovieLens_prefs(path="./data/100kcross/u3.base")
+# pretest3prefs,pretest3uimat,max_pretest3user,max_pretest3movieid=loadMovieLens_prefs(path="./data/100kcross/u3.test")
+# # 943と877
+# train4prefs,train4uimat,max_train4user,max_train4movieid=loadMovieLens_prefs(path="./data/100kcross/u4.base")
+# pretest4prefs,pretest4uimat,max_pretest4user,max_pretest4movieid=loadMovieLens_prefs(path="./data/100kcross/u4.test")
+# # 943と943
+# train5prefs,train5uimat,max_train5user,max_train5movieid=loadMovieLens_prefs(path="./data/100kcross/u5.base")
+# pretest5prefs,pretest5uimat,max_pretest5user,max_pretest5movieid=loadMovieLens_prefs(path="./data/100kcross/u5.test")
+# # 943と943
+
 
 #ディクショナリは順番決まってないからpopitemで先頭取り出すはつまりランダム！
+
+# popitem
+# popitem(prefs['1'].popitem())
 
 
 
