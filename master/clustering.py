@@ -29,7 +29,7 @@ def loadMovieLens_prefs(path):
             max_user = int(user)
         if int(movieid) > int(max_movieid):
             max_movieid = int(movieid)
-        # 1682個の映画と943人のユーザ
+        # 1682個の映画と943人のユーザと少なくとも20の映画評価
 
     # 配列は1ずつ数がずれているから注意
     uimat = np.zeros((int(max_user),int(max_movieid)))
@@ -84,7 +84,7 @@ def topMatches(prefs, uimat, person, n, similarity):
 
 # アイテムの推薦
 # person以外のユーザの評点の重み付き平均を使い、personへの推薦を算出する
-def getRecommendations(prefs,topMatchSU,person='30'):
+def getRecommendations(prefs,topMatchSU,person):
     totals={}
     simSums={}
     #嗜好が類似しているピアユーザに対して
@@ -92,7 +92,7 @@ def getRecommendations(prefs,topMatchSU,person='30'):
         for movieid in prefs[other]:
             if sim<=0: continue
             # まだ見ていない映画のスコアのみを算出
-            if movieid not in prefs[person] or prefs[person][movieid]==0:
+            if movieid not in prefs[str(person)] or prefs[str(person)][movieid]==0:
                 totals.setdefault(movieid,0)
                 # 他人の評価とその人との類似度の積によるスコアがtotals
                 totals[movieid]+=int(prefs[other][movieid]) * sim
@@ -108,18 +108,19 @@ def getRecommendations(prefs,topMatchSU,person='30'):
 
 
 movies = {}
+movies=loadMovieLens_movies(path="./data/u.item")
+
 prefs = {}
 max_user = 0
 max_movieid = 0
 uimat = np.zeros((int(max_user),int(max_movieid)))
-movies=loadMovieLens_movies(path="./data/u.item")
-prefs,uimat,max_user,max_movieid=loadMovieLens_prefs(path="./data/u.data")
+prefs,uimat,max_user,max_movieid=loadMovieLens_prefs(path="./data/100kcross/u1.base")
 
 topMatchSU={}
-topMatchSU=dict(topMatches(prefs, uimat, person=30 , n=4, similarity=sim_pearson))
-UCFRecommendation=getRecommendations(prefs,topMatchSU,person='30')
+topMatchSU=dict(topMatches(prefs, uimat, 30 , 4, sim_pearson))
+UCFRecommendation=getRecommendations(prefs, topMatchSU, 30)
 
-
+#ディクショナリは順番決まってないからpopitemで先頭取り出すはつまりランダム！
 
 
 
