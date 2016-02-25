@@ -122,37 +122,41 @@ uimat=loadMovieLens_uimat(prefs,max_user,max_movieid)
 te1prefs,max_te1user,max_te1movieid=loadMovieLens_prefs(path="./data/100kcross/u1.test")
 
 
-print(te1prefs)
 
-user=630
-totals=0
-itemSums=0
-# 変化させるのは近傍
-topMatchSU=dict(topMatches(prefs, uimat, user, 5, sim_pearson))
-rankings=getRecommendations(prefs, topMatchSU, user)
-for (sim,movieid) in rankings:
-    if movieid in te1prefs[str(user)]:
-        s=abs(float(te1prefs[str(user)][movieid])-sim)
-        totals+=s
-        itemSums+=1
-MAE=totals/itemSums
-print(MAE)
+# user=30
+# totals={}
+# simSums={}
+# # 変化させるのは近傍
+# topMatchSU=dict(topMatches(prefs, uimat, user, 5, sim_pearson))
+# rankings=getRecommendations(prefs, topMatchSU, user)
+# for (sim,movieid) in rankings:
+#     if movieid in te1prefs[str(user)]:
+#         s=abs(float(te1prefs[str(user)][movieid])-sim)
+#         totals.setdefault(user,0)
+#         totals[user]+=s
+#         simSums.setdefault(user,0)
+#         simSums[user]+=1
+# pNMAE=totals[user]/simSums[user]
+# NMAE=+pNMAE
+# print(NMAE)
 
-
-# totals=0
-# itemSums=0
-# for user in prefs:
-#     # 変化させるのは近傍
-#     topMatchSU=dict(topMatches(prefs, uimat, user, 5, sim_pearson))
-#     rankings=getRecommendations(prefs, topMatchSU, user)
-#     for (sim,movieid) in rankings:
-#         if movieid in te1prefs[str(user)]:
-#             s=abs(float(te1prefs[str(user)][movieid])-sim)
-#             totals+=s
-#             itemSums+=1
-# MAE=totals/itemSums
-# print(MAE)
-
+for user in te1prefs:
+    totals={}
+    simSums={}
+    # 変化させるのは近傍
+    topMatchSU=dict(topMatches(prefs, uimat, user, 5, sim_pearson))
+    rankings=getRecommendations(prefs, topMatchSU, user)
+    for (sim,movieid) in rankings:
+        if movieid in te1prefs[str(user)]:
+            s=abs(float(te1prefs[str(user)][movieid])-sim)
+            totals.setdefault(user,0)
+            totals[user]+=s
+            simSums.setdefault(user,0)
+            simSums[user]+=1
+    pNMAE=totals[user]/simSums[user]
+    NMAE=+pNMAE
+NMAE=NMAE/max_user
+print(NMAE)
 
 # print(rankings)
 # リストの要素取り出し！
